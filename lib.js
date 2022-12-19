@@ -1,17 +1,15 @@
 const express = require('express');
-const {v4: uuid} = require('uuid');
-const router = express.Router();
+const { v4: uuid } = require('uuid');
 const logger = require('./middleware/logger');
-//const bookRouter = require('./routes/download-router');
 const err_404 = require('./middleware/error404');
-const demoRouter = require('./routes/demo')
-const fileMulter = require('./middleware/file')
+const bookRouter = require('./routes/upload');
 const app = express();
 
-app.use('/public', express.static(__dirname+'/public'))
+
+app.use('/public', express.static(__dirname + '/public'))
 app.use(logger);
 app.use(express.json());
-//app.use('/api/books', demoRouter);
+app.use('/api', bookRouter);
 
 
 class Library {
@@ -37,31 +35,6 @@ class User {
 let store = { lib:[], users:[] };
 
 
-
-app.post('/api/books/upload-file', 
-    fileMulter.single('book-file'),
-    (req, res) => {
-        if(req.file){
-            const {path} = req.file
-            res.json(path)
-        }
-        res.json()
-    })
-
-app.get('/api/books/:id/download', (req, res) => {
-    const { lib } = store;
-    const { id } = req.params;
-    const idx = lib.findIndex(el => el.id === id);
-
-    if ( idx !== -1 ) {
-        let el = lib[idx]
-        if (el.fileBook) {
-            res.redirect(`http://127.0.0.1:4040/${el.fileBook}`);
-        } else {
-            res.json('File not found')
-        }
-    }
-})
 
 app.get('/api/books', (req, res) => {
     const { lib } = store;
@@ -121,8 +94,7 @@ app.put('/api/books/:id', (req, res) => {
         authors,
         favorite,
         fileCover,
-        fileName, 
-        fileBook } = req.body;
+        fileName } = req.body;
 
     const idx = lib.findIndex(el => el.id === id);
     if ( idx !== -1 ) {
@@ -133,8 +105,7 @@ app.put('/api/books/:id', (req, res) => {
             authors,
             favorite,
             fileCover,
-            fileName,
-            fileBook
+            fileName
         };
         res.json(lib[idx]);
     } else {
