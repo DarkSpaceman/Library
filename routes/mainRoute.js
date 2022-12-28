@@ -51,10 +51,9 @@ router.get('/api/books/:id/download', (req, res) => {
 
     if ( idx !== -1 ) {
         let book = String(lib[idx].fileBook);
-        res.json(book);
+        res.download(book, (err) => { if (err) throw err });
     }
 });
-
 
 router.post('/api/user/login', (req, res) => {
     const{ users } = store;
