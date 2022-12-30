@@ -3,7 +3,6 @@ const { v4: uuid } = require('uuid');
 const fileMulter = require('../middleware/file');
 const router = Router();
 
-
 class Library {
     constructor (id = "", title = "", description = "", authors = "", favorite = "", fileCover = "", fileName = "", fileBook="") {
         this.id = id;
@@ -26,36 +25,59 @@ class User {
 
 let store = { lib:[], users:[] };
 
-router.get('/api/books', (req, res) => {
+router.get('/api/books/create', ( req, res ) => {
+    res.render('create', { title: 'New book'})
+})
+
+router.get('/api/books', ( req, res ) => {
     const { lib } = store;
-    res.json(lib);
+    res.render('index', {
+        title: 'Все книги',
+        libr: lib
+    })
 });
 
 
-router.get('/api/books/:id', (req, res) => {
+router.get('/api/books/:id', ( req, res ) => {
     const { lib } = store;
     const { id } = req.params;
-    const idx = lib.findIndex(el => el.id === id);
+    const idx = lib.findIndex( el => el.id === id );
 
     if ( idx !== -1 ) {
-        res.json(lib[idx]);
-    }
+        res.render('view', {
+            el: lib[ idx ]
+        });
+    };
 });
 
 
-router.get('/api/books/:id/download', (req, res) => {
+router.get('/api/books/:id/download', ( req, res ) => {
     const { lib } = store;
     const { id } = req.params;
 
-    const idx = lib.findIndex(el => el.id === id);
+    const idx = lib.findIndex( el => el.id === id );
 
     if ( idx !== -1 ) {
         let book = String(lib[idx].fileBook);
-        res.download(book, (err) => { if (err) throw err });
+        res.download(book, ( err ) => { if ( err ) throw err });
     }
 });
 
-router.post('/api/user/login', (req, res) => {
+router.get('/api/books/:id/update', ( req, res ) => {
+    const { lib } = store;
+    const { id } = req.params;
+    const idx = lib.findIndex( el => el.id === id );
+
+    if ( idx !== -1 ) {
+        res.render('update', {
+            el: lib[ idx ],
+            title: 'Updating book.'
+        });
+    };
+});
+
+
+router.post('/api/user/login', ( req, res ) => {
     const{ users } = store;
     const { mail } = req.body;
 
@@ -67,33 +89,34 @@ router.post('/api/user/login', (req, res) => {
 });
 
 
-router.post('/api/books', fileMulter.single('book'), (req, res) => {
+
+router.post('/api/books/create', fileMulter.single('book'), ( req, res ) => {
     const { lib } = store;
+
     const {
             title,
-            description,
+            desc,
             authors,
             favorite,
             fileCover,
             fileName,
             } = req.body;
 
-    let fileBook = '';
+    let book = ''
 
-    if ( req.file ) {
+    if(req.file) {
         const { path } = req.file;
-        fileBook = path;
-    } 
-
-    const newBook = new Library(uuid(), title, description, authors, favorite, fileCover, fileName, fileBook);
+        book = path;
+    }
+    const newBook = new Library(uuid(), title, desc, authors, favorite, fileCover, fileName, book);
     lib.push(newBook);
 
     res.status(201);
-    res.json(newBook);
+    res.json(newBook)
 });
 
 
-router.put('/api/books/:id', fileMulter.single('book'), (req, res) => {
+router.put('/api/books/:id/update', fileMulter.single('book'), ( req, res ) => {
     const { lib } = store;
     const { id } = req.params;
 
@@ -133,7 +156,7 @@ router.put('/api/books/:id', fileMulter.single('book'), (req, res) => {
 });
 
 
-router.delete('/api/books/:id', (req, res) => {
+router.delete('/api/books/:id', ( req, res  ) => {
     const { lib } = store;
     const { id } = req.params;
 

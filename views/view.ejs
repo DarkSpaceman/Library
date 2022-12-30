@@ -1,0 +1,25 @@
+<%- include('./blocks/top.ejs', {title: el.title}) %>
+
+<body id="card-body">
+    <div id="book-card">
+        <h5> <%= el.title %> </h5>
+        <% if ( el.fileCover ) { %>
+            <img src="<%= el.fileCover %>" id="card-img" title="<% el.title %>">
+        <% } else { %>
+            <img src="/public/images/question.jpg" id="card-img" title="There should be a book cover">
+        <% } %>
+        <div id="book-info">
+            <h5><%= el.title %>. <%= el.authors %>.</h5>
+            <% if ( el.decs ) { %>
+                <p><%= el.description %></p>
+            <% } else { %>
+                <p>It's very interesting book!</p>
+            <% } %>
+        </div>
+        <div id="card-buttons"> 
+            <a href="/api/books/<%= el.id %>/update"><button type="button" class="btn btn-warning">Update</button></a>
+            <!-- <a href="/download"><button type="button" class="btn btn-warning">Download</button></a> -->
+        </div>
+    </div>
+
+<%- include('./blocks/bottom.ejs') %>
